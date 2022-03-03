@@ -4,8 +4,8 @@ COPY . /app
 
 WORKDIR /app
 
-RUN rm persistant/ -r
-RUN rm config.py
+RUN rm persistant/ -r  || :
+RUN rm config.py || :
 RUN mv config-docker.py config.py
 
 # Update alpine packages.
