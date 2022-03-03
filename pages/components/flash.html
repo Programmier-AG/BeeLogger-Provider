@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+                <li {% if category == "error" %}
+                style="color: red"
+                {% endif %} >{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>
+            Bei der Anfrage wurden keine Informationen vom Server empfangen.
+            Wenn Sie eine Aktion durchführen, sollte diese hier quittiert werden.
+        </p>
+    {% endif %}
+{% endwith %}

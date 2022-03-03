@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BeeLogger-Provider Login</title>
+</head>
+<body>
+    <h1>BeeLogger-Provider Login</h1>
+    <p>Um diese Wagenstation zu verwenden, musst du dich einloggen.</p>
+    <p>Das Passwort wurde vom Administrator über die Konfigurationsdatei festgelegt.</p>
+    {% if loginform.password.errors %}
+        <ul class="errors">
+        {% for error in loginform.password.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="POST" action="/login/">
+        {{ loginform.hidden_tag() }}
+        {{ loginform.password.label }} {{ loginform.password(size=20) }}
+        <input type="submit" value="Anmelden">
+    </form>
+    {% if next != None and next != "" %}
+        <p>Sie werden nach {{ next }} umgeleitet.</p>
+    {% endif %}
+    <hr>
+    <h3>Informationen:</h3>
+    {% include "components/flash.html" %}
+</body>
+</html>

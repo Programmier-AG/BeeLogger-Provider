@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BeeLogger {% if station_number != None %}Station {{ station_number }}{% else %}Hauptstation{% endif %}</title>
+</head>
+<body>
+    <h1>BeeLogger Provider Oberfläche</h1>
+    {% if station_number != None %}
+        <h2>Station {{ station_number }}</h2>
+    {% else %}
+        <h2>Hauptstation</h2>
+    {% endif %}
+    <p>Auf dieser Oberfläche können Datenintervalle, die Server Adresse uvm. angepasst werden.</p>
+    <b><p>Melden Sie sich bitte ab, wenn Sie fertig sind:</p></b>
+    <a href="/logout"><button>Abmelden</button></a>
+    <hr>
+    <h3>Informationen:</h3>
+    {% include "components/flash.html" %}
+    <hr>
+    <h3>Daten</h3>
+    <ul>
+        <li>Aktueller Intervall: {{ current_interval }} Sekunden</li>
+    </ul>
+    <hr>
+    <h3>Passwort ändern</h3>
+    <form method="POST" action="/change_pw/">
+        {{ pwform.old_password.label }} {{ pwform.old_password(size=20) }} <br>
+        {{ pwform.new_password.label }} {{ pwform.new_password(size=20) }} <br>
+        <input type="submit" value="Ändern">
+    </form>
+    <hr>
+    <h3>Server Adresse ändern</h3>
+    <form method="post" action="/change_address/">
+        {{ serverform.uri.label }} {{ serverform.uri(size=20) }} <br>
+        <input type="submit" value="Ändern">
+    </form>
+    <hr>
+    <h3>Datenintervall ändern</h3>
+    {% for field in intervalform %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    <form method="POST" action="/change_interval/">
+        {{ intervalform.seconds.label }} {{ intervalform.seconds(size=20) }} <br>
+        {{ intervalform.minutes.label }} {{ intervalform.minutes(size=20) }} <br>
+        {{ intervalform.hours.label }} {{ intervalform.hours(size=20) }} <br>
+        <input type="submit" value="Ändern">
+    </form>
+</body>
+</html>
