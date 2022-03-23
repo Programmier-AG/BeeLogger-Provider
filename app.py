@@ -12,6 +12,7 @@ from flask_login import LoginManager, UserMixin, login_required, login_user, log
 
 import config
 import database as db
+from pages.forms.calibration import CalibrationForm
 from pages.forms.interval import IntervalForm
 from pages.forms.login import LoginForm
 from pages.forms.password import PasswordChangeForm
@@ -58,12 +59,22 @@ def index():
     pwform = PasswordChangeForm()
     intervalform = IntervalForm()
     serverform = ServerAdress()
+    caliform = CalibrationForm()
+
+    serverform.uri.data = db.Config.query.filter_by(key="server_address").first().value
+
+    caliform.offset.data = db.Config.query.filter_by(key="scale_offset").first().value
+    caliform.ratio.data = db.Config.query.filter_by(key="scale_ratio").first().value
+    caliform.tare.data = db.Config.query.filter_by(key="scale_tare").first().value
+
     return render_template("index.html",
                            station_number=db.Config.query.filter_by(key="station_number").first(),
                            pwform=pwform,
                            intervalform=intervalform,
                            serverform=serverform,
-                           current_interval=scheduler.interval_getter(app)
+                           caliform=caliform,
+                           current_interval=scheduler.interval_getter(app),
+                           current_server=db.Config.query.filter_by(key="server_address").first().value
                            )
 
 @app.route("/login/", methods=["GET", "POST"])
@@ -93,6 +104,28 @@ def logout():
 
     logout_user()
     flash("Erfolgreich ausgeloggt!")
+    return redirect(url_for("index"))
+
+@app.route("/change_calibration/", methods=["POST"])
+@login_required
+def change_calibration():
+    caliform = CalibrationForm()
+
+    if caliform.validate_on_submit():
+        scale = {
+            "offset": caliform.offset.data,
+            "ratio": caliform.ratio.data,
+            "tare": caliform.tare.data
+        }
+        db.client.session.merge(db.Config(key="scale_offset", value=scale["offset"]))
+        db.client.session.merge(db.Config(key="scale_ratio", value=scale["ratio"]))
+        db.client.session.merge(db.Config(key="scale_tare", value=scale["tare"]))
+
+        db.client.session.commit()
+
+        flash("Erfolgreich gespeichert!")
+    else:
+        flash("Ungültiges Formular!", category="error")
     return redirect(url_for("index"))
 
 @app.route("/change_pw/", methods=["POST"])
@@ -129,7 +162,7 @@ def change_address():
             return redirect(url_for("index"))
 
         if req.status_code != 200:
-            flash("Server Adresse konnte nicht angepingt werden!", category="error")
+            flash("Server Adresse konnte nicht angepingt werden! Status %s" % req.status_code, category="error")
             return redirect(url_for("index"))
 
         db.client.session.merge(db.Config(key="server_address", value=form.uri.data))

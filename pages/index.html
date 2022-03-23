@@ -21,6 +21,7 @@
     <h3>Daten</h3>
     <ul>
         <li>Aktueller Intervall: {{ current_interval }} Sekunden</li>
+        <li>Aktuelle Serveradresse: {{ current_server }}</li>
     </ul>
     <hr>
     <h3>Passwort ändern</h3>
@@ -49,6 +50,24 @@
         {{ intervalform.seconds.label }} {{ intervalform.seconds(size=20) }} <br>
         {{ intervalform.minutes.label }} {{ intervalform.minutes(size=20) }} <br>
         {{ intervalform.hours.label }} {{ intervalform.hours(size=20) }} <br>
+        <input type="submit" value="Ändern">
+    </form>
+
+    <hr>
+    <h3>Kalibrierung</h3>
+    {% for field in caliform %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    <form method="POST" action="/change_calibration/">
+        {{ caliform.hidden_tag() }}
+        {{ caliform.offset.label }} {{ caliform.offset(size=20) }} <br>
+        {{ caliform.ratio.label }} {{ caliform.ratio(size=20) }} <br>
+        {{ caliform.tare.label }} {{ caliform.tare(size=20) }} <br>
         <input type="submit" value="Ändern">
     </form>
 </body>
