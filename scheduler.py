@@ -2,10 +2,18 @@ import time
 
 import schedule
 
+import config
+import data_providers
 from database import Config
 
+if not config.Flask.debug:
+    import RPi.GPIO as GPIO
+
 def run_data_push():
-    print("running the data push...")  # This is obviously work in progress...
+    if config.Flask.debug:
+        print("running the data push...")
+    else:
+        data_providers.weight.get()
 
 def interval_getter(ctx):
     with ctx.app_context():

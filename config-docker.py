@@ -9,6 +9,7 @@ if not os.path.exists(path):
 
 class Flask:
     secret_key = secret_key_generator.generate(file_name="persistant/secret_key.txt")
+    debug = False
 
 
 password = os.environ.get("DEFAULT_PASS")
