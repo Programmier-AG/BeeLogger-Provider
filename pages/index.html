@@ -70,5 +70,25 @@
         {{ caliform.tare.label }} {{ caliform.tare(size=20) }} <br>
         <input type="submit" value="Ändern">
     </form>
+
+    <hr>
+    <h3>Pinbelegung</h3>
+    {% for field in pinform %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    <form method="POST" action="/change_pinout/">
+        {{ pinform.hidden_tag() }}
+        {{ pinform.scale_clk.label }} {{ pinform.scale_clk(size=20) }} <br>
+        {{ pinform.scale_dout.label }} {{ pinform.scale_dout(size=20) }} <br>
+        {{ pinform.dht_dat.label }} {{ pinform.dht_dat(size=20) }} <br>
+        {{ pinform.dht_model.label }} {{ pinform.dht_model(size=20) }} <br>
+
+        <input type="submit" value="Ändern">
+    </form>
 </body>
 </html>

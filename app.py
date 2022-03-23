@@ -17,6 +17,7 @@ from pages.forms.interval import IntervalForm
 from pages.forms.login import LoginForm
 from pages.forms.password import PasswordChangeForm
 import scheduler
+from pages.forms.pins import PinForm
 from pages.forms.server_uri import ServerAdress
 
 
@@ -60,12 +61,27 @@ def index():
     intervalform = IntervalForm()
     serverform = ServerAdress()
     caliform = CalibrationForm()
+    pinform = PinForm()
 
-    serverform.uri.data = db.Config.query.filter_by(key="server_address").first().value
+    try:
+        serverform.uri.data = db.Config.query.filter_by(key="server_address").first().value
+    except AttributeError:
+        pass
 
-    caliform.offset.data = db.Config.query.filter_by(key="scale_offset").first().value
-    caliform.ratio.data = db.Config.query.filter_by(key="scale_ratio").first().value
-    caliform.tare.data = db.Config.query.filter_by(key="scale_tare").first().value
+    try:
+        caliform.offset.data = db.Config.query.filter_by(key="scale_offset").first().value
+        caliform.ratio.data = db.Config.query.filter_by(key="scale_ratio").first().value
+        caliform.tare.data = db.Config.query.filter_by(key="scale_tare").first().value
+    except AttributeError:
+        pass
+
+    try:
+        pinform.scale_dout.data = db.Config.query.filter_by(key="scale_dout").first().value
+        pinform.scale_clk.data = db.Config.query.filter_by(key="scale_clk").first().value
+        pinform.dht_dat.data = db.Config.query.filter_by(key="dht_dat").first().value
+        pinform.dht_model.data = db.Config.query.filter_by(key="dht_model").first().value
+    except AttributeError:
+        pass
 
     return render_template("index.html",
                            station_number=db.Config.query.filter_by(key="station_number").first(),
@@ -73,6 +89,7 @@ def index():
                            intervalform=intervalform,
                            serverform=serverform,
                            caliform=caliform,
+                           pinform=pinform,
                            current_interval=scheduler.interval_getter(app),
                            current_server=db.Config.query.filter_by(key="server_address").first().value
                            )
@@ -104,6 +121,31 @@ def logout():
 
     logout_user()
     flash("Erfolgreich ausgeloggt!")
+    return redirect(url_for("index"))
+
+@app.route("/change_pinout/", methods=["POST"])
+@login_required
+def change_pinout():
+    pinform = PinForm()
+
+    if pinform.validate_on_submit():
+        pinout = {
+            "scale_dout": pinform.scale_dout.data,
+            "scale_clk": pinform.scale_clk.data,
+            "dht_dat": pinform.dht_dat.data,
+            "dht_model": pinform.dht_model.data
+        }
+
+        print(pinout.values())
+
+        for key, val in pinout.items():
+            db.client.session.merge(db.Config(key=key, value=val))
+        db.client.session.commit()
+
+        flash("Erfolgreich gespeichert!")
+    else:
+        flash("Ungültiges Formular!", category="error")
+
     return redirect(url_for("index"))
 
 @app.route("/change_calibration/", methods=["POST"])
