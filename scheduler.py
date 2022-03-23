@@ -13,7 +13,8 @@ def run_data_push():
     if config.Flask.debug:
         print("running the data push...")
     else:
-        data_providers.weight.get()
+        weight = data_providers.weight.get()
+        temp, humid = data_providers.temp_humid.get()
 
 def interval_getter(ctx):
     with ctx.app_context():

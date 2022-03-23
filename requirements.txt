@@ -6,3 +6,4 @@ WTForms~=3.0.1
 schedule~=1.1.0
 secret-key-generator~=0.0.8
 requests~=2.27.1
+adafruit-circuitpython-dht~=3.7.1
