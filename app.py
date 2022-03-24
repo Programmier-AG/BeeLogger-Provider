@@ -65,6 +65,7 @@ def index():
 
     try:
         serverform.uri.data = db.Config.query.filter_by(key="server_address").first().value
+        serverform.token.data = db.Config.query.filter_by(key="server_token").first().value
     except AttributeError:
         pass
 
@@ -196,7 +197,7 @@ def change_pw():
 def change_address():
     form = ServerAdress()
 
-    if form.is_submitted():
+    if form.validate_on_submit():
         try:
             req = requests.get(form.uri.data)
         except:
@@ -208,6 +209,7 @@ def change_address():
             return redirect(url_for("index"))
 
         db.client.session.merge(db.Config(key="server_address", value=form.uri.data))
+        db.client.session.merge(db.Config(key="server_token", value=form.token.data))
         db.client.session.commit()
 
         flash("Server Adresse wurde aktualisiert.")

@@ -33,7 +33,9 @@
     <hr>
     <h3>Server Adresse ändern</h3>
     <form method="post" action="/change_address/">
+        {{ serverform.hidden_tag() }}
         {{ serverform.uri.label }} {{ serverform.uri(size=20) }} <br>
+        {{ serverform.token.label }} {{ serverform.token(size=20) }} <br>
         <input type="submit" value="Ändern">
     </form>
     <hr>
