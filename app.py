@@ -124,6 +124,31 @@ def logout():
     flash("Erfolgreich ausgeloggt!")
     return redirect(url_for("index"))
 
+@app.route("/push_now/")
+@login_required
+def push_now():
+    try:
+        scheduler.run_data_push(app)
+        flash("Daten gesendet!")
+    except Exception as e:
+        flash("Das hat nicht geklappt.")
+        flash(str(e))
+
+    return redirect(url_for("index"))
+
+@app.route("/get_data/")
+@login_required
+def get_data():
+    weight, temp, humid = scheduler.get_data()
+
+    flash("Daten gemessen:")
+    flash("Gewicht: %s" % weight)
+    flash("Temperatur: %s" % temp)
+    flash("Luftfeuchte: %s" % humid)
+
+    return redirect(url_for("index"))
+
+
 @app.route("/change_pinout/", methods=["POST"])
 @login_required
 def change_pinout():

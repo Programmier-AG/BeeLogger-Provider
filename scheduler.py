@@ -1,20 +1,51 @@
+from datetime import datetime
 import time
 
+import requests
 import schedule
 
 import config
 import data_providers
-from database import Config
+from database import *
 
 if not config.Flask.debug:
     import RPi.GPIO as GPIO
 
-def run_data_push():
-    if config.Flask.debug:
+def get_data():
+    # weight = data_providers.weight.get()
+    # temp, humid = data_providers.temp_humid.get()
+    weight = 1
+    temp = 4
+    humid = 8
+
+    return weight, temp, humid
+def run_data_push(ctx):
+    if not config.Flask.debug:
         print("running the data push...")
     else:
-        weight = data_providers.weight.get()
-        temp, humid = data_providers.temp_humid.get()
+        weight, temp, humid = get_data()
+
+        print("Pushing data:")
+        print("Weight:", weight)
+        print("Temp:", temp)
+        print("Humid:", humid)
+
+        with ctx.app_context():
+            client.session.add(DataBackup(temperature=temp, humidity=humid, weight=weight, measured=datetime.now()))
+            client.session.commit()  # DO NOT REMOVE; prevents data loss when request fails
+
+            url = Config.query.filter_by(key="server_address").first().value
+            if url.endswith("/"): url = url[:-1]
+            print("Using URL:", url)
+            token = Config.query.filter_by(key="server_token").first().value
+
+            res = requests.get(url + "/api/data/insert",
+                               params={"token": token, "t": temp, "h": humid, "w": weight},
+                               cookies={"opt-in": "true"}
+                               )
+
+            client.session.add(Logs(time=datetime.now(), source="insert", message=res.text, code=res.status_code))
+            client.session.commit()
 
 def interval_getter(ctx):
     with ctx.app_context():
@@ -37,7 +68,7 @@ def run_tasks(ctx=None, stop=None):
     data_push = schedule.Scheduler()
 
     print("Running tasks every %s seconds" % interval)
-    data_push.every(interval).seconds.do(run_data_push)
+    data_push.every(interval).seconds.do(lambda: run_data_push(ctx))
 
     print("Scheduler started...")
 

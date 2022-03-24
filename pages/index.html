@@ -23,6 +23,12 @@
         <li>Aktueller Intervall: {{ current_interval }} Sekunden</li>
         <li>Aktuelle Serveradresse: {{ current_server }}</li>
     </ul>
+
+    <hr>
+    <h3>Tools</h3>
+    <a href="/get_data/"><button>Aktuelle Daten messen</button></a><br><br>
+    <a href="/push_now/"><button>Jetzt Daten senden</button></a>
+
     <hr>
     <h3>Passwort ändern</h3>
     <form method="POST" action="/change_pw/">
