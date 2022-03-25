@@ -10,7 +10,10 @@ import threading
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 
-import config
+try:
+    import config
+except ImportError:
+    import example_config as config
 import database as db
 from pages.forms.calibration import CalibrationForm
 from pages.forms.interval import IntervalForm
