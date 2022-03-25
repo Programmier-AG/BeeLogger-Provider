@@ -12,11 +12,11 @@ if not config.Flask.debug:
     import RPi.GPIO as GPIO
 
 def get_data():
-    # weight = data_providers.weight.get()
-    # temp, humid = data_providers.temp_humid.get()
-    weight = 1
-    temp = 4
-    humid = 8
+    if config.Flask.debug:
+        return 1, 2, 3
+
+    weight = data_providers.weight.get()
+    temp, humid = data_providers.temp_humid.get()
 
     return weight, temp, humid
 def run_data_push(ctx):

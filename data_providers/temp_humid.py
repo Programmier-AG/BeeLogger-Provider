@@ -6,14 +6,15 @@ if not config.Flask.debug:
 
 def get():
     model = database.Config.query.filter_by(key="dht_model").first().value
+    pin = int(database.Config.query.filter_by(key="dht_pin").first().value)
 
     if model == "11":
         dht = adafruit_dht.DHT11(
-            database.Config.query.filter_by(key="scale_dout").first().value,
+            pin
         )
     elif model == "22":
         dht = adafruit_dht.DHT22(
-            database.Config.query.filter_by(key="scale_dout").first().value,
+            pin
         )
     else:
         print("No dht model was set! Skipping.")

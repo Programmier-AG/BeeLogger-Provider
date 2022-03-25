@@ -92,7 +92,7 @@ def index():
                            caliform=caliform,
                            pinform=pinform,
                            current_interval=scheduler.interval_getter(app),
-                           current_server=db.Config.query.filter_by(key="server_address").first().value
+                           current_server=serverform.uri.data,
                            )
 
 @app.route("/login/", methods=["GET", "POST"])
