@@ -18,6 +18,9 @@ def get_data():
     weight = data_providers.weight.get()
     temp, humid = data_providers.temp_humid.get()
 
+    if not config.Flask.debug:
+        GPIO.cleanup()
+
     return weight, temp, humid
 def run_data_push(ctx):
     if not config.Flask.debug:
