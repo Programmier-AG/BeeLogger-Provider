@@ -6,7 +6,7 @@ if not config.Flask.debug:
 
 def get():
     model = database.Config.query.filter_by(key="dht_model").first().value
-    pin = int(database.Config.query.filter_by(key="dht_pin").first().value)
+    pin = int(database.Config.query.filter_by(key="dht_dat").first().value)
 
     if model == "11":
         dht = adafruit_dht.DHT11(
