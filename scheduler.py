@@ -23,7 +23,7 @@ def get_data():
 
     return weight, temp, humid
 def run_data_push(ctx):
-    if not config.Flask.debug:
+    if config.Flask.debug:
         print("running the data push...")
     else:
         weight, temp, humid = get_data()
