@@ -7,8 +7,8 @@ if not config.Flask.debug:
 def get():
     dout = int(database.Config.query.filter_by(key='scale_dout').first().value)
     clk = int(database.Config.query.filter_by(key='scale_clk').first().value)
-    offset = int(database.Config.query.filter_by(key='scale_offset').first().value)
-    ratio = int(database.Config.query.filter_by(key='scale_ratio').first().value)
+    offset = float(database.Config.query.filter_by(key='scale_offset').first().value)
+    ratio = float(database.Config.query.filter_by(key='scale_ratio').first().value)
 
     hx = HX711(
         dout, clk

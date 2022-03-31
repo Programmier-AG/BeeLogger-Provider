@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField
+from wtforms import FloatField
 
 class CalibrationForm(FlaskForm):
-    offset = IntegerField('Waage-Offset')
-    ratio = IntegerField('Waage-Ratio')
-    tare = IntegerField("Waage-Tara Wert")
+    offset = FloatField('Waage-Offset')
+    ratio = FloatField('Waage-Ratio')
+    tare = FloatField("Waage-Tara Wert")

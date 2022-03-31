@@ -16,6 +16,7 @@ def get_data():
         return 1, 2, 3
 
     weight = data_providers.weight.get()
+    weight -= float(Config.query.filter_by(key="scale_tare").first().value)
     temp, humid = data_providers.temp_humid.get()
 
     if not config.Flask.debug:
