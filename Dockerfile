@@ -33,7 +33,7 @@ RUN apk add --update \
   musl
 
 # Install python dependencies from requirements.txt.
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --install-option="--force-pi" --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-docker.txt
 
 ENV PYTHONPATH=/usr/lib/python3.10/site-packages
