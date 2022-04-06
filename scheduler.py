@@ -11,13 +11,14 @@ from database import *
 if not config.Flask.debug:
     import RPi.GPIO as GPIO
 
-def get_data():
+def get_data(ctx=None):
     if config.Flask.debug:
         return 1, 2, 3
 
-    weight = data_providers.weight.get()
-    weight -= float(Config.query.filter_by(key="scale_tare").first().value)
-    temp, humid = data_providers.temp_humid.get()
+    with ctx.app_context():
+        weight = data_providers.weight.get(ctx)
+        weight -= float(Config.query.filter_by(key="scale_tare").first().value)
+        temp, humid = data_providers.temp_humid.get()
 
     if not config.Flask.debug:
         GPIO.cleanup()
@@ -27,7 +28,7 @@ def run_data_push(ctx):
     if config.Flask.debug:
         print("running the data push...")
     else:
-        weight, temp, humid = get_data()
+        weight, temp, humid = get_data(ctx=ctx)
 
         print("Pushing data:")
         print("Weight:", weight)

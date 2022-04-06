@@ -142,7 +142,7 @@ def push_now():
 @app.route("/get_data/")
 @login_required
 def get_data():
-    weight, temp, humid = scheduler.get_data()
+    weight, temp, humid = scheduler.get_data(ctx=app)
 
     flash("Daten gemessen:")
     flash("Gewicht: %s" % weight)
