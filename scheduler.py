@@ -3,6 +3,7 @@ import time
 
 import requests
 import schedule
+import statistics
 
 import config
 import data_providers
@@ -16,9 +17,32 @@ def get_data(ctx=None):
         return 1, 2, 3
 
     with ctx.app_context():
-        weight = data_providers.weight.get(ctx)
+        weights = []
+        temps = []
+        humids = []
+        for i in range(4):
+            weights.append(data_providers.weight.get(ctx=ctx))
+            time.sleep(1)
+            temp, humid = data_providers.temp_humid.get()
+            temps.append(temp)
+            humids.append(humid)
+
+        # Check for weight fluctuations
+        while statistics.pstdev(weights) > 5:
+            print("WARNING: Weight variance is high! Trying again...")
+            print("Variance:", statistics.pstdev(weights), "Data:", weights)
+            client.session.add(Logs(time=datetime.now(), source="measure", message="Hight weight variance: %s" % statistics.pstdev(weights), code=0))
+
+            time.sleep(0.3)
+
+            # Updating list until weight variance is low; discarding first value
+            weights.pop(0)
+            weights.append(data_providers.weight.get(ctx=ctx))
+
+        weight = statistics.mean(weights)
         weight -= float(Config.query.filter_by(key="scale_tare").first().value)
-        temp, humid = data_providers.temp_humid.get()
+        temp = statistics.mean(temps)
+        humid = statistics.mean(humids)
 
     if not config.Flask.debug:
         GPIO.cleanup()
