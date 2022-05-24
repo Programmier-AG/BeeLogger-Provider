@@ -16,13 +16,10 @@ def get():
         print("No dht model was set! Skipping.")
         return 0, 0
 
-    humid = temp = None
-    i = 0
-    while humid is None or temp is None:
-        if i > 5:
-            print("GETTING TEMP/HUMID FAILED AFTER 5 TRIES!!")
-            return 0, 0
-        i += 1
-        humid, temp = Adafruit_DHT.read_retry(sensor, pin)
+    humid, temp = Adafruit_DHT.read_retry(sensor, pin)
+
+    if humid is None or temp is None:
+        print("GETTING TEMP/HUMID FAILED!!")
+        return 0, 0
 
     return temp, humid

@@ -1,9 +1,10 @@
-from datetime import datetime
+import statistics
 import time
+from datetime import datetime
 
 import requests
 import schedule
-import statistics
+from requests.adapters import HTTPAdapter, Retry
 
 import config
 import data_providers
@@ -23,9 +24,10 @@ def get_data(ctx=None):
         for i in range(4):
             weights.append(data_providers.weight.get(ctx=ctx))
             time.sleep(1)
-            temp, humid = data_providers.temp_humid.get()
-            temps.append(temp)
-            humids.append(humid)
+            if temps != [0] or humids != [0]:
+                temp, humid = data_providers.temp_humid.get()
+                temps.append(temp)
+                humids.append(humid)
 
         # Check for weight fluctuations
         while statistics.pstdev(weights) > 5:
@@ -68,10 +70,27 @@ def run_data_push(ctx):
             print("Using URL:", url)
             token = Config.query.filter_by(key="server_token").first().value
 
+            """
             res = requests.get(url + "/api/data/insert",
                                params={"token": token, "t": temp, "h": humid, "w": weight},
                                cookies={"opt-in": "true"}
                                )
+            """
+
+            insert_session = requests.Session()
+            insert_session.mount("https://",  # Set retry policy for insert requests; retry 5 times with .1 increses
+                                 HTTPAdapter(
+                                     max_retries=Retry(
+                                         total=5,
+                                         backoff_factor=0.1,
+                                         status_forcelist=[500, 502, 503, 504]  # Always retry on server errors
+                                     )
+                                 ))
+
+            insert_session.cookies.update({"opt-in": "true"})
+            res = insert_session.get(url + "/api/data/insert",
+                                     params={"token": token, "t": temp, "h": humid, "w": weight})
+            insert_session.close()
 
             client.session.add(Logs(time=datetime.now(), source="insert", message=res.text, code=res.status_code))
             client.session.commit()
